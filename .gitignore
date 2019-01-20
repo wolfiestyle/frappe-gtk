@@ -1,0 +1,12 @@
+target
+Cargo.lock
+*.patch
+*.diff
+*.orig
+*.rej
+*.out
+*.bak
+*~
+.DS_Store
+Thumbs.db
+_

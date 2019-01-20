@@ -1,0 +1,13 @@
+[package]
+name = "frappe-gtk"
+version = "0.1.0"
+authors = ["darkstalker <slayerbeast@gmail.com>"]
+description = "FRP extensions for Gtk"
+documentation = "https://docs.rs/frappe-gtk"
+repository = "https://github.com/darkstalker/frappe-gtk"
+readme = "README.md"
+keywords = ["frp", "reactive", "event", "gui", "gtk"]
+license = "MIT"
+edition = "2018"
+
+[dependencies]
