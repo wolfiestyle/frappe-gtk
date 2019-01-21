@@ -91,8 +91,21 @@ fn main() {
     listbox.stream_remove(&deleted);
 
     // handle the window close event
-    let delete_ev = window.delete_events(false);
-    delete_ev.observe(|_| gtk::main_quit());
+    let win_ = window.wrap_fragile();
+    let _close_ev = window
+        .delete_events(true)
+        .map(move |_| {
+            gtk::MessageDialog::new(
+                Some(win_.get()),
+                gtk::DialogFlags::MODAL,
+                gtk::MessageType::Warning,
+                gtk::ButtonsType::YesNo,
+                "Are you sure you want to quit?",
+            )
+        })
+        .run_dialog()
+        .filter(|resp| *resp == gtk::ResponseType::Yes.into())
+        .inspect(|_| gtk::main_quit());
 
     window.show_all();
     gtk::main();

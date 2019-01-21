@@ -435,3 +435,19 @@ where
         self
     }
 }
+
+/// Extension trait for `gtk::ObjectExt`.
+pub trait FrpObjectExt {
+    fn wrap_fragile(&self) -> Fragile<Self>
+    where
+        Self: Sized;
+}
+
+impl<T> FrpObjectExt for T
+where
+    T: gtk::ObjectExt + Clone,
+{
+    fn wrap_fragile(&self) -> Fragile<Self> {
+        Fragile::new(self.clone())
+    }
+}

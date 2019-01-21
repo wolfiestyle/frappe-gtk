@@ -12,6 +12,25 @@ pub trait StreamExt<T> {
     fn wrap_fragile(&self) -> Stream<Fragile<T>>
     where
         T: Clone + 'static;
+    /// Shows a dialog and maps it's response values.
+    fn map_dialog<F, R>(&self, f: F) -> Stream<R>
+    where
+        F: Fn(&T, i32) -> R + Clone + Send + Sync + 'static,
+        T: DialogExt + WidgetExt + 'static,
+        R: 'static;
+    /// Shows a dialog and returns it's response value.
+    ///
+    /// This destroys the dialog after receiving a response.
+    /// If you don't want that, use `map_dialog` instead.
+    fn run_dialog(&self) -> Stream<i32>
+    where
+        T: DialogExt + WidgetExt + 'static,
+    {
+        self.map_dialog(|dlg, resp| {
+            dlg.destroy();
+            resp
+        })
+    }
 }
 
 impl<T> StreamExt<T> for Stream<T> {
@@ -35,6 +54,19 @@ impl<T> StreamExt<T> for Stream<T> {
         T: Clone + 'static,
     {
         self.map(|val| Fragile::new(val.into_owned()))
+    }
+
+    fn map_dialog<F, R>(&self, f: F) -> Stream<R>
+    where
+        F: Fn(&T, i32) -> R + Clone + Send + Sync + 'static,
+        T: DialogExt + WidgetExt + 'static,
+        R: 'static,
+    {
+        self.map_n(move |dialog, sender| {
+            dialog.show();
+            let f = f.clone();
+            dialog.connect_response(move |dlg, resp| sender.send(f(dlg, resp)));
+        })
     }
 }
 
