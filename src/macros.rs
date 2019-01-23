@@ -1,6 +1,11 @@
 /// Lifts the specified Gtk method into a Signal.
 #[macro_export]
 macro_rules! gtk_lift {
+    ($obj:ident . $method:ident in Fragile) => {{
+        let this = $crate::types::Fragile::new($obj.clone());
+        frappe::Signal::from_fn(move || $crate::types::Fragile::new(this.get().$method()))
+    }};
+
     ($obj:ident . $method:ident) => {{
         let this = $crate::types::Fragile::new($obj.clone());
         frappe::Signal::from_fn(move || this.get().$method())
@@ -12,7 +17,7 @@ macro_rules! gtk_lift {
 macro_rules! gtk_observe {
     ($stream:expr , | $($args:pat),+ | $obj:ident . $method:ident ( $($e:expr),+ )) => ({
         let weak = $crate::types::Fragile::new($obj.downgrade());
-        $stream.observe(move |$($args),+| {
+        $stream.observe_strong(move |$($args),+| {
             weak.get().upgrade().map(|obj| obj.$method($($e),+));
         });
     });

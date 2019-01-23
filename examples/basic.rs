@@ -12,13 +12,16 @@ fn main() {
     let button = gtk::Button::new_with_label("Click me!");
     window.add(&button);
 
-    let clicked = button.clicked_events();
-    let counter = clicked
-        .fold(0, |a, _| a + 1)
-        .snapshot(&clicked, |n, _| format!("clicked {} times", n));
-    button.stream_label(&counter);
+    button.stream_label(
+        &button
+            .clicked_events()
+            .scan(0, |a, _| a + 1)
+            .map(|n| format!("clicked {} times", n)),
+    );
 
-    let _del = window.delete_events(false).inspect(|_| gtk::main_quit());
+    window
+        .delete_events(false)
+        .observe_strong(|_| gtk::main_quit());
 
     window.show_all();
     gtk::main();

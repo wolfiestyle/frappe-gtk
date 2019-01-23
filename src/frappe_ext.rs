@@ -1,5 +1,5 @@
 use crate::types::Fragile;
-use frappe::{Signal, Stream};
+use frappe::Stream;
 use gtk::prelude::*;
 
 /// Extension trait for frappe streams.
@@ -84,35 +84,5 @@ impl<T> StreamFragileExt<T> for Stream<Fragile<T>> {
         T: Clone + 'static,
     {
         self.map(|f| f.into_owned().into_inner())
-    }
-}
-
-/// Extension trait for frappe signals.
-pub trait SignalExt<T> {
-    /// Wraps the Signal values in Fragile.
-    fn wrap_fragile(&self) -> Signal<Fragile<T>>;
-}
-
-impl<T> SignalExt<T> for Signal<T>
-where
-    T: Clone + 'static,
-{
-    fn wrap_fragile(&self) -> Signal<Fragile<T>> {
-        self.map(Fragile::new)
-    }
-}
-
-/// Extension trait for `Signal<Option<T>>`.
-pub trait SignalOptExt<T> {
-    /// Wraps the Signal's `Some` values in Fragile.
-    fn wrap_opt_fragile(&self) -> Signal<Option<Fragile<T>>>;
-}
-
-impl<T> SignalOptExt<T> for Signal<Option<T>>
-where
-    T: Clone + 'static,
-{
-    fn wrap_opt_fragile(&self) -> Signal<Option<Fragile<T>>> {
-        self.map(|opt| opt.map(Fragile::new))
     }
 }

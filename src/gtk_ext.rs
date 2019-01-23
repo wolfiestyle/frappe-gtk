@@ -5,16 +5,16 @@ use gtk::{Inhibit, IsA, Widget};
 /// Extension trait for `gtk::BoxExt`.
 pub trait FrpBoxExt {
     /// Appends widgets received from a Stream.
-    fn stream_pack_start<W: IsA<Widget>>(&self, stream: &Stream<PackArgs<W>>);
+    fn stream_pack_start<W: IsA<Widget> + 'static>(&self, stream: &Stream<PackArgs<W>>);
     /// Prepends widgets received from a Stream.
-    fn stream_pack_end<W: IsA<Widget>>(&self, stream: &Stream<PackArgs<W>>);
+    fn stream_pack_end<W: IsA<Widget> + 'static>(&self, stream: &Stream<PackArgs<W>>);
 }
 
 impl<T> FrpBoxExt for T
 where
     T: gtk::BoxExt + gtk::ObjectExt + 'static,
 {
-    fn stream_pack_start<W: IsA<Widget>>(&self, stream: &Stream<PackArgs<W>>) {
+    fn stream_pack_start<W: IsA<Widget> + 'static>(&self, stream: &Stream<PackArgs<W>>) {
         gtk_observe!(stream, |args| self.pack_start(
             &args.child,
             args.expand,
@@ -23,7 +23,7 @@ where
         ))
     }
 
-    fn stream_pack_end<W: IsA<Widget>>(&self, stream: &Stream<PackArgs<W>>) {
+    fn stream_pack_end<W: IsA<Widget> + 'static>(&self, stream: &Stream<PackArgs<W>>) {
         gtk_observe!(stream, |args| self.pack_end(
             &args.child,
             args.expand,
@@ -74,9 +74,9 @@ where
 /// Extension trait for `gtk::ContainerExt`.
 pub trait FrpContainerExt {
     /// Adds the widgets received from a Stream.
-    fn stream_add<W: IsA<Widget>>(&self, stream: &Stream<W>);
+    fn stream_add<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>);
     /// Removes the widgets received from a Stream.
-    fn stream_remove<W: IsA<Widget>>(&self, stream: &Stream<W>);
+    fn stream_remove<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>);
     /// Returns an `add` event Stream.
     fn add_events(&self) -> Stream<Widget>;
     /// Returns a `remove` event Stream.
@@ -87,11 +87,11 @@ impl<T> FrpContainerExt for T
 where
     T: gtk::ContainerExt + gtk::ObjectExt + 'static,
 {
-    fn stream_add<W: IsA<Widget>>(&self, stream: &Stream<W>) {
+    fn stream_add<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>) {
         gtk_observe!(stream, |widget| self.add(widget.as_ref()))
     }
 
-    fn stream_remove<W: IsA<Widget>>(&self, stream: &Stream<W>) {
+    fn stream_remove<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>) {
         gtk_observe!(stream, |widget| self.remove(widget.as_ref()))
     }
 
@@ -166,14 +166,14 @@ where
 
 /// Extension trait for `gtk::GridExt`.
 pub trait FrpGridExt {
-    fn stream_attach<W: IsA<Widget>>(&self, stream: &Stream<GridArgs<W>>);
+    fn stream_attach<W: IsA<Widget> + 'static>(&self, stream: &Stream<GridArgs<W>>);
 }
 
 impl<T> FrpGridExt for T
 where
     T: gtk::GridExt + gtk::ObjectExt + 'static,
 {
-    fn stream_attach<W: IsA<Widget>>(&self, stream: &Stream<GridArgs<W>>) {
+    fn stream_attach<W: IsA<Widget> + 'static>(&self, stream: &Stream<GridArgs<W>>) {
         gtk_observe!(stream, |args| self.attach(
             &args.child,
             args.left,
@@ -303,14 +303,14 @@ where
 
 /// Extension trait for `gtk::OverlayExt`.
 pub trait FrpOverlayExt {
-    fn stream_add_overlay<W: IsA<Widget>>(&self, stream: &Stream<W>);
+    fn stream_add_overlay<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>);
 }
 
 impl<T> FrpOverlayExt for T
 where
     T: gtk::OverlayExt + gtk::ObjectExt + 'static,
 {
-    fn stream_add_overlay<W: IsA<Widget>>(&self, stream: &Stream<W>) {
+    fn stream_add_overlay<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>) {
         gtk_observe!(stream, |widget| self.add_overlay(widget.as_ref()))
     }
 }
