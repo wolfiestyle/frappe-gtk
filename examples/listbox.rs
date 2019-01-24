@@ -3,57 +3,48 @@ use gtk;
 use gtk::prelude::*;
 use std::thread;
 use std::time::Duration;
-
-macro_rules! with {
-    ($obj:expr, |$arg:ident| $body:expr) => {{
-        let $arg = $obj;
-        $body;
-        $arg
-    }};
-}
+use with_macro::with;
 
 fn main() {
     gtk::init().unwrap();
 
     // build the Gtk UI
     let (listbox, cmd_add, cmd_del, lbl_count, spinner);
-    let window = with!(gtk::Window::new(gtk::WindowType::Toplevel), |window| {
-        window.set_default_size(300, 300);
-        window.set_border_width(10);
-        window.set_title("listbox");
+    let window = with! {
+        gtk::Window::new(gtk::WindowType::Toplevel) =>
+            .set_default_size(300, 300)
+            .set_border_width(10)
+            .set_title("listbox")
+            .add(&with!{
+                gtk::Box::new(gtk::Orientation::Vertical, 5) =>
+                    .add(&with!{
+                        gtk::Overlay::new() =>
+                            lbl_count = gtk::Label::new("counter: 0");
+                            .add(&lbl_count)
 
-        window.add(&with!(
-            gtk::Box::new(gtk::Orientation::Vertical, 5),
-            |container| {
-                container.add(&with!(gtk::Overlay::new(), |row| {
-                    lbl_count = gtk::Label::new("counter: 0");
-                    row.add(&lbl_count);
+                            spinner = with!{
+                                gtk::Spinner::new() =>
+                                    .set_halign(gtk::Align::Start)
+                            };
+                            .add_overlay(&spinner)
+                    })
+                    .add(&with!{
+                        gtk::ScrolledWindow::new(None, None) =>
+                            .set_vexpand(true)
 
-                    spinner = gtk::Spinner::new();
-                    spinner.set_halign(gtk::Align::Start);
-                    row.add_overlay(&spinner);
-                }));
+                            listbox = gtk::ListBox::new();
+                            .add(&listbox)
+                    })
+                    .add(&with!{
+                        gtk::Box::new(gtk::Orientation::Horizontal, 3) =>
+                            cmd_add = gtk::Button::new_with_label("Add item delayed");
+                            .add(&cmd_add)
 
-                container.add(&with!(gtk::ScrolledWindow::new(None, None), |scrolled| {
-                    scrolled.set_vexpand(true);
-
-                    listbox = gtk::ListBox::new();
-                    scrolled.add(&listbox);
-                }));
-
-                container.add(&with!(
-                    gtk::Box::new(gtk::Orientation::Horizontal, 3),
-                    |row| {
-                        cmd_add = gtk::Button::new_with_label("Add item delayed");
-                        row.add(&cmd_add);
-
-                        cmd_del = gtk::Button::new_with_label("Remove item");
-                        row.add(&cmd_del);
-                    }
-                ));
-            }
-        ));
-    });
+                            cmd_del = gtk::Button::new_with_label("Remove item");
+                            .add(&cmd_del)
+                    })
+            })
+    };
 
     // handle the "Add item" button events
     let counter = cmd_add.clicked_events().scan(0, |a, _| a + 1);
