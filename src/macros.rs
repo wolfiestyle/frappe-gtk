@@ -1,11 +1,6 @@
 /// Lifts the specified Gtk method into a Signal.
 #[macro_export]
 macro_rules! gtk_lift {
-    ($obj:ident . $method:ident in Fragile) => {{
-        let this = $crate::types::Fragile::new($obj.clone());
-        frappe::Signal::from_fn(move || $crate::types::Fragile::new(this.get().$method()))
-    }};
-
     ($obj:ident . $method:ident) => {{
         let this = $crate::types::Fragile::new($obj.clone());
         frappe::Signal::from_fn(move || this.get().$method())

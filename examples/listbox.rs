@@ -71,9 +71,8 @@ fn main() {
 
     // handle the "Remove item" button events
     let del_clicked = cmd_del.clicked_events();
-    let deleted = gtk_lift!(listbox.get_selected_row in Fragile)
+    let deleted = gtk_lift!(listbox.get_selected_row)
         .snapshot(&del_clicked, |a, _| a)
-        .unwrap_fragile()
         .filter_some();
     listbox.stream_remove(&deleted);
 
