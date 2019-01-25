@@ -10,8 +10,19 @@ keywords = ["frp", "reactive", "event", "gui", "gtk"]
 license = "MIT"
 edition = "2018"
 
+[features]
+v3_6 = ["gtk/v3_6"]
+v3_8 = ["v3_6", "gtk/v3_8"]
+v3_10 = ["v3_8", "gtk/v3_10"]
+v3_12 = ["v3_10", "gtk/v3_12"]
+v3_14 = ["v3_12", "gtk/v3_14"]
+v3_16 = ["v3_14", "gtk/v3_16"]
+v3_18 = ["v3_16", "gtk/v3_18"]
+v3_20 = ["v3_18", "gtk/v3_20"]
+v3_22 = ["v3_20", "gtk/v3_22"]
+
 [dependencies]
-gtk = { version = "0.5.0", features = ["v3_10"] }
+gtk = "0.5.0"
 gdk = "0.9.0"
 glib = "0.6.1"
 frappe = "0.4.4"
@@ -19,3 +30,7 @@ fragile = "0.3.0"
 
 [dev-dependencies]
 with-macro = "0.1.1"
+
+[[example]]
+name = "listbox"
+required-features = ["v3_10"]
