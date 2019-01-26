@@ -379,7 +379,7 @@ where
 pub trait FrpWidgetExt {
     fn stream_sensitive(&self, stream: &Stream<bool>);
     fn stream_visible(&self, stream: &Stream<bool>);
-    fn delete_events(&self, inhibit: bool) -> Stream<gdk::Event>;
+    fn delete_events(&self, inhibit: bool) -> Stream<()>;
     fn enter_notify_events(&self, inhibit: bool) -> Stream<gdk::EventCrossing>;
     fn leave_notify_events(&self, inhibit: bool) -> Stream<gdk::EventCrossing>;
     fn motion_notify_events(&self, inhibit: bool) -> Stream<gdk::EventMotion>;
@@ -401,8 +401,8 @@ where
         gtk_observe!(stream, |b| self.set_visible(*b))
     }
 
-    fn delete_events(&self, inhibit: bool) -> Stream<gdk::Event> {
-        connect_stream!(self.connect_delete_event, |_, ev| ev; Inhibit(inhibit))
+    fn delete_events(&self, inhibit: bool) -> Stream<()> {
+        connect_stream!(self.connect_delete_event, |_, _| (); Inhibit(inhibit))
     }
 
     fn enter_notify_events(&self, inhibit: bool) -> Stream<gdk::EventCrossing> {
