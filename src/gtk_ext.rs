@@ -343,6 +343,35 @@ where
     }
 }
 
+/// Extension trait for `gtk::TextBufferExt`.
+pub trait FrpTextBufferExt {
+    fn stream_modified(&self, stream: &Stream<bool>);
+    fn stream_text(&self, stream: &Stream<String>);
+    fn changed_events(&self) -> Stream<()>;
+    fn modified_changed_events(&self) -> Stream<bool>;
+}
+
+impl<T> FrpTextBufferExt for T
+where
+    T: gtk::TextBufferExt + gtk::ObjectExt + 'static,
+{
+    fn stream_modified(&self, stream: &Stream<bool>) {
+        gtk_observe!(stream, |b| self.set_modified(*b))
+    }
+
+    fn stream_text(&self, stream: &Stream<String>) {
+        gtk_observe!(stream, |s| self.set_text(&s))
+    }
+
+    fn changed_events(&self) -> Stream<()> {
+        connect_stream!(self.connect_changed)
+    }
+
+    fn modified_changed_events(&self) -> Stream<bool> {
+        connect_stream!(self.connect_modified_changed, |this| this.get_modified())
+    }
+}
+
 /// Extension trait for `gtk::ToggleButtonExt`.
 trait FrpToggleButtonExt {
     fn toggled_events(&self) -> Stream<ToggleState>;
