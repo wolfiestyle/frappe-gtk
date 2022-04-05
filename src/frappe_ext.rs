@@ -71,6 +71,43 @@ impl<T> StreamExt<T> for Stream<T> {
     }
 }
 
+pub trait StreamOptExt<T> {
+    fn map_opt_dialog<F, R>(&self, f: F) -> Stream<Option<R>>
+    where
+        F: Fn(&T, ResponseType) -> R + Clone + Send + Sync + 'static,
+        T: DialogExt + WidgetExt + 'static,
+        R: 'static;
+
+    fn run_opt_dialog(&self) -> Stream<Option<ResponseType>>
+    where
+        T: Clone + IsA<Widget> + DialogExt + 'static,
+    {
+        self.map_opt_dialog(|dlg, resp| {
+            dlg.hide();
+            resp
+        })
+    }
+}
+
+impl<T> StreamOptExt<T> for Stream<Option<T>> {
+    fn map_opt_dialog<F, R>(&self, f: F) -> Stream<Option<R>>
+    where
+        F: Fn(&T, ResponseType) -> R + Clone + Send + Sync + 'static,
+        T: DialogExt + WidgetExt + 'static,
+        R: 'static,
+    {
+        self.map_n(move |optdlg, sender| {
+            if let Some(dialog) = optdlg.as_ref() {
+                dialog.show();
+                let f = f.clone();
+                dialog.connect_response(move |dlg, resp| sender.send(Some(f(dlg, resp))));
+            } else {
+                sender.send(None)
+            }
+        })
+    }
+}
+
 /// Extension trait for `Stream<Fragile<T>>`.
 pub trait StreamFragileExt<T> {
     /// Extracts the inner value from Fragile objects.
