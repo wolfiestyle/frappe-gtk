@@ -1,6 +1,7 @@
 use crate::types::Fragile;
 use frappe::Stream;
 use gtk::prelude::*;
+use gtk::{ResponseType, Widget};
 
 /// Extension trait for frappe streams.
 pub trait StreamExt<T> {
@@ -15,19 +16,19 @@ pub trait StreamExt<T> {
     /// Shows a dialog and maps it's response values.
     fn map_dialog<F, R>(&self, f: F) -> Stream<R>
     where
-        F: Fn(&T, i32) -> R + Clone + Send + Sync + 'static,
-        T: DialogExt + WidgetExt + 'static,
+        F: Fn(&T, ResponseType) -> R + Clone + Send + Sync + 'static,
+        T: IsA<Widget> + DialogExt + 'static,
         R: 'static;
     /// Shows a dialog and returns it's response value.
     ///
-    /// This destroys the dialog after receiving a response.
+    /// This hides the dialog after receiving a response.
     /// If you don't want that, use `map_dialog` instead.
-    fn run_dialog(&self) -> Stream<i32>
+    fn run_dialog(&self) -> Stream<ResponseType>
     where
-        T: DialogExt + WidgetExt + 'static,
+        T: IsA<Widget> + DialogExt + 'static,
     {
         self.map_dialog(|dlg, resp| {
-            dlg.destroy();
+            dlg.hide();
             resp
         })
     }
@@ -58,7 +59,7 @@ impl<T> StreamExt<T> for Stream<T> {
 
     fn map_dialog<F, R>(&self, f: F) -> Stream<R>
     where
-        F: Fn(&T, i32) -> R + Clone + Send + Sync + 'static,
+        F: Fn(&T, ResponseType) -> R + Clone + Send + Sync + 'static,
         T: DialogExt + WidgetExt + 'static,
         R: 'static,
     {

@@ -1,5 +1,4 @@
 use frappe_gtk::prelude::*;
-use gtk;
 use gtk::prelude::*;
 
 fn main() {
@@ -9,7 +8,7 @@ fn main() {
     window.set_title("basic");
     window.set_border_width(20);
 
-    let button = gtk::Button::new_with_label("Click me!");
+    let button = gtk::Button::with_label("Click me!");
     window.add(&button);
 
     button.stream_label(

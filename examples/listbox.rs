@@ -1,5 +1,4 @@
 use frappe_gtk::prelude::*;
-use gtk;
 use gtk::prelude::*;
 use std::thread;
 use std::time::Duration;
@@ -19,7 +18,7 @@ fn main() {
                 gtk::Box::new(gtk::Orientation::Vertical, 5) =>
                     .add(&with!{
                         gtk::Overlay::new() =>
-                            lbl_count = gtk::Label::new("counter: 0");
+                            lbl_count = gtk::Label::new(Some("counter: 0"));
                             .add(&lbl_count)
 
                             spinner = with!{
@@ -29,7 +28,7 @@ fn main() {
                             .add_overlay(&spinner)
                     })
                     .add(&with!{
-                        gtk::ScrolledWindow::new(None, None) =>
+                        gtk::ScrolledWindow::new(gtk::Adjustment::NONE, gtk::Adjustment::NONE) =>
                             .set_vexpand(true)
 
                             listbox = gtk::ListBox::new();
@@ -37,10 +36,10 @@ fn main() {
                     })
                     .add(&with!{
                         gtk::Box::new(gtk::Orientation::Horizontal, 3) =>
-                            cmd_add = gtk::Button::new_with_label("Add item delayed");
+                            cmd_add = gtk::Button::with_label("Add item delayed");
                             .add(&cmd_add)
 
-                            cmd_del = gtk::Button::new_with_label("Remove item");
+                            cmd_del = gtk::Button::with_label("Remove item");
                             .add(&cmd_del)
                     })
             })
@@ -66,12 +65,12 @@ fn main() {
         .map(|a| *a != 0);
     // update the UI state using the data from the streams
     lbl_count.stream_label(&counter_str);
-    listbox.stream_add(&counter_worker.map(|s| gtk::Label::new(s.as_str()).show_()));
+    listbox.stream_add(&counter_worker.map(|s| gtk::Label::new(Some(s.as_str())).show_()));
     spinner.stream_active(&spinner_active);
 
     // handle the "Remove item" button events
     let del_clicked = cmd_del.clicked_events();
-    let deleted = gtk_lift!(listbox.get_selected_row)
+    let deleted = gtk_lift!(listbox.selected_row)
         .snapshot(&del_clicked, |a, _| a)
         .filter_some();
     listbox.stream_remove(&deleted);

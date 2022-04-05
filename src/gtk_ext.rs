@@ -1,6 +1,7 @@
 use crate::types::*;
 use frappe::Stream;
-use gtk::{Inhibit, IsA, Widget};
+use gtk::prelude::*;
+use gtk::{ResponseType, Widget};
 
 /// Extension trait for `gtk::BoxExt`.
 pub trait FrpBoxExt {
@@ -12,7 +13,7 @@ pub trait FrpBoxExt {
 
 impl<T> FrpBoxExt for T
 where
-    T: gtk::BoxExt + gtk::ObjectExt + 'static,
+    T: BoxExt + ObjectExt + 'static,
 {
     fn stream_pack_start<W: IsA<Widget> + 'static>(&self, stream: &Stream<PackArgs<W>>) {
         gtk_observe!(stream, |args| self.pack_start(
@@ -43,7 +44,7 @@ pub trait FrpButtonExt {
 
 impl<T> FrpButtonExt for T
 where
-    T: gtk::ButtonExt + gtk::ObjectExt + 'static,
+    T: ButtonExt + ObjectExt + 'static,
 {
     fn stream_label(&self, stream: &Stream<String>) {
         gtk_observe!(stream, |s| self.set_label(&s))
@@ -61,12 +62,12 @@ trait FrpCheckMenuItemExt {
 
 impl<T> FrpCheckMenuItemExt for T
 where
-    T: gtk::CheckMenuItemExt,
+    T: CheckMenuItemExt,
 {
     fn toggled_events(&self) -> Stream<ToggleState> {
         connect_stream!(self.connect_toggled, |this| ToggleState {
-            active: this.get_active(),
-            inconsistent: this.get_inconsistent(),
+            active: this.is_active(),
+            inconsistent: this.is_inconsistent(),
         })
     }
 }
@@ -85,7 +86,7 @@ pub trait FrpContainerExt {
 
 impl<T> FrpContainerExt for T
 where
-    T: gtk::ContainerExt + gtk::ObjectExt + 'static,
+    T: ContainerExt + ObjectExt + 'static,
 {
     fn stream_add<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>) {
         gtk_observe!(stream, |widget| self.add(widget.as_ref()))
@@ -109,18 +110,18 @@ pub trait FrpDialogExt {
     /// Returns a `close` event Stream.
     fn close_events(&self) -> Stream<()>;
     /// Returns a `response` event Stream.
-    fn response_events(&self) -> Stream<i32>;
+    fn response_events(&self) -> Stream<ResponseType>;
 }
 
 impl<T> FrpDialogExt for T
 where
-    T: gtk::DialogExt,
+    T: DialogExt,
 {
     fn close_events(&self) -> Stream<()> {
         connect_stream!(self.connect_close)
     }
 
-    fn response_events(&self) -> Stream<i32> {
+    fn response_events(&self) -> Stream<ResponseType> {
         connect_stream!(self.connect_response, |_, id| id)
     }
 }
@@ -134,7 +135,7 @@ pub trait FrpEntryExt {
 
 impl<T> FrpEntryExt for T
 where
-    T: gtk::EntryExt + gtk::ObjectExt + 'static,
+    T: EntryExt + ObjectExt + 'static,
 {
     fn stream_text(&self, stream: &Stream<String>) {
         gtk_observe!(stream, |s| self.set_text(&s))
@@ -156,7 +157,7 @@ pub trait FrpExpanderExt {
 
 impl<T> FrpExpanderExt for T
 where
-    T: gtk::ExpanderExt + gtk::ObjectExt + 'static,
+    T: ExpanderExt + ObjectExt + 'static,
 {
     /// Sets the expanded property using the values from a Stream.
     fn stream_expanded(&self, stream: &Stream<bool>) {
@@ -171,7 +172,7 @@ pub trait FrpGridExt {
 
 impl<T> FrpGridExt for T
 where
-    T: gtk::GridExt + gtk::ObjectExt + 'static,
+    T: GridExt + ObjectExt + 'static,
 {
     fn stream_attach<W: IsA<Widget> + 'static>(&self, stream: &Stream<GridArgs<W>>) {
         gtk_observe!(stream, |args| self.attach(
@@ -195,7 +196,7 @@ pub trait FrpGtkWindowExt {
 
 impl<T> FrpGtkWindowExt for T
 where
-    T: gtk::GtkWindowExt + gtk::ObjectExt + 'static,
+    T: GtkWindowExt + ObjectExt + 'static,
 {
     fn stream_position(&self, stream: &Stream<gtk::WindowPosition>) {
         gtk_observe!(stream, |pos| self.set_position(*pos))
@@ -225,7 +226,7 @@ pub trait FrpLabelExt {
 
 impl<T> FrpLabelExt for T
 where
-    T: gtk::LabelExt + gtk::ObjectExt + 'static,
+    T: LabelExt + ObjectExt + 'static,
 {
     fn stream_label(&self, stream: &Stream<String>) {
         gtk_observe!(stream, |s| self.set_label(&s))
@@ -239,7 +240,7 @@ pub trait FrpLinkButtonExt {
 
 impl<T> FrpLinkButtonExt for T
 where
-    T: gtk::LinkButtonExt,
+    T: LinkButtonExt,
 {
     fn activate_link_events(&self, inhibit: bool) -> Stream<()> {
         connect_stream!(self.connect_activate_link, |_| (); Inhibit(inhibit))
@@ -253,7 +254,7 @@ pub trait FrpMenuItemExt {
 
 impl<T> FrpMenuItemExt for T
 where
-    T: gtk::MenuItemExt,
+    T: GtkMenuItemExt,
 {
     fn activate_events(&self) -> Stream<()> {
         connect_stream!(self.connect_activate)
@@ -270,7 +271,7 @@ pub trait FrpNotebookExt {
 
 impl<T> FrpNotebookExt for T
 where
-    T: gtk::NotebookExt,
+    T: NotebookExt,
 {
     fn page_added_events(&self) -> Stream<NotebookPage> {
         connect_stream!(self.connect_page_added, |_, w, page_num| NotebookPage {
@@ -308,7 +309,7 @@ pub trait FrpOverlayExt {
 
 impl<T> FrpOverlayExt for T
 where
-    T: gtk::OverlayExt + gtk::ObjectExt + 'static,
+    T: OverlayExt + ObjectExt + 'static,
 {
     fn stream_add_overlay<W: IsA<Widget> + 'static>(&self, stream: &Stream<W>) {
         gtk_observe!(stream, |widget| self.add_overlay(widget.as_ref()))
@@ -322,7 +323,7 @@ pub trait FrpRangeExt {
 
 impl<T> FrpRangeExt for T
 where
-    T: gtk::RangeExt,
+    T: RangeExt,
 {
     fn change_value_events(&self, inhibit: bool) -> Stream<RangeValue> {
         connect_stream!(self.connect_change_value, |_, scroll, value| RangeValue{ scroll, value }; Inhibit(inhibit))
@@ -336,10 +337,10 @@ pub trait FrpSpinnerExt {
 
 impl<T> FrpSpinnerExt for T
 where
-    T: gtk::SpinnerExt + gtk::ObjectExt + 'static,
+    T: SpinnerExt + ObjectExt + 'static,
 {
     fn stream_active(&self, stream: &Stream<bool>) {
-        gtk_observe!(stream, |active| self.set_property_active(*active))
+        gtk_observe!(stream, |active| self.set_active(*active))
     }
 }
 
@@ -353,7 +354,7 @@ pub trait FrpTextBufferExt {
 
 impl<T> FrpTextBufferExt for T
 where
-    T: gtk::TextBufferExt + gtk::ObjectExt + 'static,
+    T: TextBufferExt + ObjectExt + 'static,
 {
     fn stream_modified(&self, stream: &Stream<bool>) {
         gtk_observe!(stream, |b| self.set_modified(*b))
@@ -368,7 +369,7 @@ where
     }
 
     fn modified_changed_events(&self) -> Stream<bool> {
-        connect_stream!(self.connect_modified_changed, |this| this.get_modified())
+        connect_stream!(self.connect_modified_changed, |this| this.is_modified())
     }
 }
 
@@ -379,12 +380,12 @@ trait FrpToggleButtonExt {
 
 impl<T> FrpToggleButtonExt for T
 where
-    T: gtk::ToggleButtonExt,
+    T: ToggleButtonExt,
 {
     fn toggled_events(&self) -> Stream<ToggleState> {
         connect_stream!(self.connect_toggled, |this| ToggleState {
-            active: this.get_active(),
-            inconsistent: this.get_inconsistent(),
+            active: this.is_active(),
+            inconsistent: this.is_inconsistent(),
         })
     }
 }
@@ -397,7 +398,7 @@ pub trait FrpToolButtonExt {
 
 impl<T> FrpToolButtonExt for T
 where
-    T: gtk::ToolButtonExt,
+    T: ToolButtonExt,
 {
     fn clicked_events(&self) -> Stream<()> {
         connect_stream!(self.connect_clicked)
@@ -420,7 +421,7 @@ pub trait FrpWidgetExt {
 
 impl<T> FrpWidgetExt for T
 where
-    T: gtk::WidgetExt + gtk::ObjectExt + 'static,
+    T: WidgetExt + ObjectExt + 'static,
 {
     fn stream_sensitive(&self, stream: &Stream<bool>) {
         gtk_observe!(stream, |b| self.set_sensitive(*b))
@@ -474,7 +475,7 @@ pub trait FrpObjectExt {
 
 impl<T> FrpObjectExt for T
 where
-    T: gtk::ObjectExt + Clone,
+    T: ObjectExt + Clone,
 {
     fn wrap_fragile(&self) -> Fragile<Self> {
         Fragile::new(self.clone())
